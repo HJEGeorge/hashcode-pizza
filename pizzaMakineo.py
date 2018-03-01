@@ -11,9 +11,7 @@ import numpy as np
 import math
 import sys
 import random
-
-TRIALS = 20
-
+import copy
 
 def read_file(filename):
     '''
@@ -43,7 +41,6 @@ class PizzaCutter:
         self.pizza = pizza
         self.L = L
         self.H = H
-
         self.score = 0
 
     def isInside(self, R, C):
@@ -169,15 +166,16 @@ class PizzaCutter:
                         self.updatePizza(R, C)
         print(self.pizza)
         self.score = calculate_score(self.pizza)
+        print(self.score)
 
 
 def calculate_score(pizza):
     i = 0
     for row in range(pizza.shape[0]):
         for col in range(pizza.shape[1]):
-            if not math.isnan(pizza[row][col]):
+            if math.isnan(pizza[row][col]):
                 i = i + 1
-    return None
+    return i
 
 
 def write_file(cutter, filename):
@@ -196,20 +194,26 @@ def main():
     Main function
     '''
     if len(sys.argv) < 3:
-        sys.exit('Syntax: %s <filename> <output>' % sys.argv[0])
+        sys.exit('Syntax: %s <filename> <output> <trials {optional}>' % sys.argv[0])
 
     print('Running on file %s' % sys.argv[1])
 
     pizza, L, H = read_file(sys.argv[1])
+    trials = 1
+    if sys.argv[3] is not None:
+        trials = int(sys.argv[3])
 
-    for i in range(TRIALS):
+    best_score = 0
+    best_pizzaCutter = None
 
+    for i in range(trials):
+        cortapisa = PizzaCutter(pizza, L, H)
+        cortapisa.start()
+        if cortapisa.score >= best_score:
+            best_pizzaCutter = copy.deepcopy(cortapisa)
+            print("assigneed")
 
-
-    cortapisa = PizzaCutter(pizza, L, H)
-    cortapisa.start()
-
-    write_file(cortapisa, sys.argv[2])
+    write_file(best_pizzaCutter, sys.argv[2])
 
 
 if __name__ == '__main__':
