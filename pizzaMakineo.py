@@ -11,6 +11,8 @@ import numpy as np
 import math
 import sys
 
+TRIALS = 20
+
 
 def read_file(filename):
     '''
@@ -40,6 +42,7 @@ class PizzaCutter:
         self.pizza = pizza
         self.L = L
         self.H = H
+        self.score = 0
 
     def isInside(self, R, C):
         '''
@@ -156,6 +159,16 @@ class PizzaCutter:
                         self.slices += [[R[0], C[0], R[1], C[1]]]
                         self.updatePizza(R, C)
         print(self.pizza)
+        self.score = calculate_score(self.pizza)
+
+
+def calculate_score(pizza):
+    i = 0
+    for row in range(pizza.shape[0]):
+        for col in range(pizza.shape[1]):
+            if not math.isnan(pizza[row][col]):
+                i = i + 1
+    return None
 
 
 def write_file(cutter, filename):
@@ -168,6 +181,7 @@ def write_file(cutter, filename):
             f.write(' '.join([str(item) for item in slic]) + '\n')
 
 
+
 def main():
     '''
     Main function
@@ -178,6 +192,11 @@ def main():
     print('Running on file %s' % sys.argv[1])
 
     pizza, L, H = read_file(sys.argv[1])
+
+    for i in range(TRIALS):
+
+
+
     cortapisa = PizzaCutter(pizza, L, H)
     cortapisa.start()
 
