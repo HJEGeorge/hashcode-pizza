@@ -1,15 +1,16 @@
 #
 # Google Hash Code 2017 - Practice Round
 #
-# Copyright (c) 2017 Team "Makineo"
+# Credits to Team "Makineo"
 #
-# Version 1.0
+# Version 2.0
 #
 
 
 import numpy as np
 import math
 import sys
+import random
 
 TRIALS = 20
 
@@ -42,6 +43,7 @@ class PizzaCutter:
         self.pizza = pizza
         self.L = L
         self.H = H
+
         self.score = 0
 
     def isInside(self, R, C):
@@ -89,18 +91,25 @@ class PizzaCutter:
         '''
         newR = list(R)
         newC = list(C)
+
+        random_direction = random.randint(0, 3)
+        if random_direction == 0:
+            nextDir = 'down'
+        elif random_direction == 1:
+            nextDir = 'left'
+        elif random_direction == 2:
+            nextDir = 'up'
+        elif random_direction == 3:
+            nextDir = 'right'
+
         if direction == 'right':
             newC[1] += 1
-            nextDir = 'down'
         elif direction == 'down':
             newR[1] += 1
-            nextDir = 'left'
         elif direction == 'left':
             newC[0] -= 1
-            nextDir = 'up'
         elif direction == 'up':
             newR[0] -= 1
-            nextDir = 'right'
         return newR, newC, nextDir
 
     def newSlice(self, point):
