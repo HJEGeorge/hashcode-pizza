@@ -1,15 +1,16 @@
 #
 # Google Hash Code 2017 - Practice Round
 #
-# Copyright (c) 2017 Team "Makineo"
+# Credits to Team "Makineo"
 #
-# Version 1.0
+# Version 2.0
 #
 
 
 import numpy as np
 import math
 import sys
+import random
 
 
 def read_file(filename):
@@ -19,11 +20,11 @@ def read_file(filename):
     Also, return the minimum ingredients required for each slice,
     and the maximum cells allowed for each slice.
     '''
-    
+
     with open(filename, 'r') as f:
         line = f.readline()
         rows, cols, min_ings, max_cells = [int(n) for n in line.split()]
-        
+
         pizza = np.zeros([rows, cols])
         for row in range(rows):
             for ing, col in zip(f.readline(), range(cols)):
@@ -31,29 +32,29 @@ def read_file(filename):
                     pizza[row, col] = 1
                 else:
                     pizza[row, col] = 0
-    
+
     return pizza, min_ings, max_cells
 
 
 class PizzaCutter:
-    
+
     def __init__(self, pizza, L, H):
         self.pizza = pizza
         self.L = L
         self.H = H
-    
+
     def isInside(self, R, C):
         '''
         Check if the slice is within the boundaries of the pizza
         '''
         try:
             assert (R[0] >= 0) and (C[0] >= 0)
-            self.pizza[R[0], C[0]] # try if the upper left corner is inside the pizza
-            self.pizza[R[1], C[1]] # try if the lower right corner is inside the pizza
+            self.pizza[R[0], C[0]]  # try if the upper left corner is inside the pizza
+            self.pizza[R[1], C[1]]  # try if the lower right corner is inside the pizza
             return True
         except:
             return False
-    
+
     def satisfyH(self, R, C):
         '''
         Check if the slice satisfies the H condition.
@@ -61,25 +62,25 @@ class PizzaCutter:
         '''
         legal = False
         if self.isInside(R, C):
-            slic = self.pizza[R[0]:R[1]+1, C[0]:C[1]+1] 
+            slic = self.pizza[R[0]:R[1] + 1, C[0]:C[1] + 1]
             if slic.size <= self.H and not math.isnan(slic.sum()):
                 # if there's one or more cells with NaN value, the sum is NaN
-                legal = True    
+                legal = True
         return legal
-    
+
     def satisfyL(self, R, C):
         '''
         Check if the slice satisfies the L condition
         '''
-        slic = self.pizza[R[0]:(R[1]+1), C[0]:(C[1]+1)] # slice of pizza
+        slic = self.pizza[R[0]:(R[1] + 1), C[0]:(C[1] + 1)]  # slice of pizza
         tomatoes = np.sum(slic)
         mushrooms = np.size(slic) - tomatoes
-        
+
         if (tomatoes >= self.L) and (mushrooms >= self.L):
             return True
         else:
             return False
-    
+
     @staticmethod
     def enlargeSlice(R, C, direction):
         '''
@@ -87,21 +88,27 @@ class PizzaCutter:
         '''
         newR = list(R)
         newC = list(C)
+
+        random_direction = random.randint(0, 3)
+        if random_direction == 0:
+            nextDir = 'down'
+        elif random_direction == 1:
+            nextDir = 'left'
+        elif random_direction == 2:
+            nextDir = 'up'
+        elif random_direction == 3:
+            nextDir = 'right'
+
         if direction == 'right':
             newC[1] += 1
-            nextDir = 'down'
         elif direction == 'down':
             newR[1] += 1
-            nextDir = 'left'
         elif direction == 'left':
             newC[0] -= 1
-            nextDir = 'up'
         elif direction == 'up':
             newR[0] -= 1
-            nextDir = 'right'
         return newR, newC, nextDir
-    
-    
+
     def newSlice(self, point):
         '''
         Take a seed point and returns a slice if possible.
@@ -111,16 +118,16 @@ class PizzaCutter:
         R: list [row_min, row_max] of the slice
         C: list [col_min, col_max] of the slice
         '''
-        
+
         Rfinal = [point[0], point[0]]
         Cfinal = [point[1], point[1]]
         direction = 'right'
         out = False
-        
-        while(not out):
+
+        while (not out):
             legal = False
             counter = 0
-            while(counter < 3):
+            while (counter < 3):
                 # Try enlarge the slice by all four directions
                 R, C, direction = self.enlargeSlice(Rfinal, Cfinal, direction)
                 if self.satisfyH(R, C):
@@ -132,18 +139,18 @@ class PizzaCutter:
                 counter += 1
             if not legal:
                 out = True
-        
+
         success = self.satisfyL(Rfinal, Cfinal)
         return success, Rfinal, Cfinal
-    
+
     def updatePizza(self, R, C):
         '''
         Fill with NaN a slice of the pizza
         '''
-        slic = np.empty([R[1]-R[0]+1, C[1]-C[0]+1])
+        slic = np.empty([R[1] - R[0] + 1, C[1] - C[0] + 1])
         slic[:] = None
-        self.pizza[R[0]:R[1]+1, C[0]:C[1]+1] = slic
-    
+        self.pizza[R[0]:R[1] + 1, C[0]:C[1] + 1] = slic
+
     def start(self):
         '''
         Try to generate a slice from each cell of the pizza
@@ -152,7 +159,7 @@ class PizzaCutter:
         for row in range(self.pizza.shape[0]):
             for col in range(self.pizza.shape[1]):
                 if not math.isnan(self.pizza[row][col]):
-                    success, R, C = self.newSlice([row,col])
+                    success, R, C = self.newSlice([row, col])
                     if success:
                         print("Success")
                         self.slices += [[R[0], C[0], R[1], C[1]]]
